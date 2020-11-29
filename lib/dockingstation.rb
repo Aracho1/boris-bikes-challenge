@@ -18,8 +18,7 @@ class DockingStation
     if @station.length >= 20
       raise StandardError.new('station is full')
     else
-    @station << bike
-    p @station.length
+      @station << bike
     end
   end
 end

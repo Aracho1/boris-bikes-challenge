@@ -1,27 +1,35 @@
+# frozen_string_literal: true
+
 require 'dockingstation'
 
 describe DockingStation do
- let(:bike) { Bike.new }
- let(:docking_station) { DockingStation.new }
+  it { is_expected.to respond_to :release_bike }
 
- it "expect docking_station station array to change when dock is called" do
-   bike = Bike.new
-   expect{docking_station.dock(bike)}.to change{docking_station.station}
- end
-
-  it { is_expected.to respond_to(:release_bike) }
-
-  it 'It should show true' do
-    expect(bike.working?).to eq true
+  it 'releases working bikes' do
+    bike = double(broken: false)
+    subject.dock bike
+    expect(subject.release_bike).to be bike
   end
 
-  it 'raises an error message when there are no bikes' do
-    expect{ docking_station.release_bike }.to raise_error('no bikes available')
+  it 'does not release broken bikes' do
+    bike = double(broken: true)
+    subject.dock bike
+    expect { subject.release_bike }.to raise_error 'No bikes available'
   end
 
-  it 'raises an error message when the station is full' do
-    #20.times { docking_station.dock Bike.new }
-    expect {21.times {docking_station.dock(bike)}}.to raise_error('station is full')
+  describe 'release_bike' do
+    it 'raises an error when there are no bikes available' do
+      expect { subject.release_bike }.to raise_error 'No bikes available'
+    end
   end
 
+  it { is_expected.to respond_to(:dock).with(1).argument }
+
+  describe 'dock' do
+    it 'raises an error when full' do
+      bike = double(broken: false)
+      subject.capacity.times { subject.dock bike }
+      expect { subject.dock double(:bike) }.to raise_error 'Docking station full'
+    end
+  end
 end
